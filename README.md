@@ -3,13 +3,15 @@ This is a starter kit for developing Nintendo Entertainment System games using 6
 
 [More NES Tutorials](https://www.embed.com/nes)
 
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/EmbedLogo.png?raw=true "Embed.com NES Game Dev")
+
 ## NES Architecture
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
 The NES uses a variant of the 6502 processor as it's CPU.  If you'd like to write code for the NES I'd highly recommend learning 6502 assembly language.  The NES also has a PPU (Picture Processing Unit).  The PPU was a kind of early stage GPU (graphics processing unit) which was capable of drawing images to the screen based on what was in the PPU's memory.  The NES had no operating system, so early NES cartridges had 2 ROM chips in them.  An 8K CHR ROM which contained all of the sprite and background image data using 2 bits per pixel.  There was also a 32K PRG ROM wich contained all of the program data your game would run.  Those ROM Chips were wired directly into the system's memory space.  When we write a game using an emulator, we mimic this memory arrangement.  
 
 ## 6502 CPU
 ### Actually a 2A03 CPU variant of the 6502 processor
-![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/6502.png?raw=true)
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/6502.png?raw=true "6502 Processor")
 The 6502 was a popular CPU in the late 1970s and early 1980s for home systems and video games because it was cheap.  It was used for several Atari systems including the 2600, by Commodore for the C64, and Apple for the Apple II.  
 
 ### The 6502 is slow
@@ -24,7 +26,55 @@ From what I can tell, there are 4 categories of commands
 * Math and Logic commands (ADC, SBC, AND)
 * Branching Commands (BEQ, JMP, BPL)
 
-6502 Assembly doesn't really have variables.  It just has places in RAM where you can put stuff.  You can assign labels to these memory locations and they kind of act like variables, but these labels are effectively global in scope.  
+6502 Assembly doesn't really have variables.  It just has places in RAM where you can put stuff.  You can assign labels to these memory locations and they kind of act like variables, but these labels are effectively global in scope.  Doing simple things can take several lines of code, and having a plan for organizing your code is very important.  Assembly code can devolve into spaghetti quickly if you are not careful.
+
+### 6502 Registers
+
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/6502-registers.png?raw=true "6502 Registers")
+According to Wikipedia, a register is a small amount of memory located directly on the CPU.  In order to program 6502 assembler for the Nintendo Entertainment System, you will need to learn what registers exist on the 6502 and what there function is.
+* Accumulator (Register A) is used for most math and logic related tasks.  It's really the only general purpose register on the 6502
+* X and Y Registers are used for indexing.  You may set aside a block of memory for game objects and grab a specific one using one of these registers as in index into that block of memory
+* The status register holds a series of flags that are set under certain conditions like if adding 2 numbers results in a value larger than an 8 bit value, or if an interrupt has been triggered.  These flags are used for conditional branching.
+* Program Counter is the only 16 bit register.  Because the bus is only 8 bits, this register must be loaded one byte at a time.  This register is where the system keeps track of what op code is currently being executed.
+* Stack Pointer is a pointer to the current top of the stack in memory.  You can push values to and pull values from the stack when you do things like run subroutines.
+
+### CA65 Assembler
+
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/6502-assembler.png?raw=true "CA65 Assembler")
+I've included a copy of the CA65 Assembler in the project in cc65/bin.  There is also a batch file that will assemble the code into a working .nes iNes file.  In the tools directory I've included the Mesen.exe which is a copy of the Mesen emulator.  With both of these you may want to go to the websites and download the current version, but my goal is to get you started so I've included them in the starter kit project.  
+[Mesen NES emulator Download](https://www.mesen.ca/)
+[CC65 6502 Compiler Download](https://www.cc65.org/index.php#Download)
+
+The most popular NES tutorial is probably the [Nerdy Nights tutorial](http://nintendoage.com/forum/messageview.cfm?catid=22&threadid=7155) on [Nintendo Age](http://nintendoage.com).  In that tutorial they use an assembler called NESASM3, which is a simpler assembler, but I found somewhat limiting.  CA65 offers a larger selection of control commands, better macros, and segments, which can be difficult to understand at first but make life a lot easier once you get to know it.  I found Nerdy Nights to be a great introduction into NES Game Development, but it didn't feel it gave me a good handle on how to organize my code once my projects got a little larger.
+
+#### CA65 Control Commands
+[CA65 Control commands](https://www.cc65.org/doc/ca65.html#toc11) are commands specific to the CA65 assembler.  They typically begin with a '.' such as .res or .macro.  They can be very useful and make organizing your code a lot easier.
+
+#### .CFG file
+I go into the config file quite a bit more below in the **File: starter.cfg** section.  The config file is used to set up what the memory in both your iNes file and your runtime environment looks like.  You also define segments that can be used to specify where your code or variable definitions are going in memory.
+
+#### Macros and Procedures (Subroutines)
+I personally find Macros and procedures to be quite helpful.  Macros are a way to combine several lines of code into a sinle line to use later.
+
+For example
+```
+.macro set set_var, from
+    lda from
+    sta set_var
+.endmacro
+```
+
+This creates a macro called set, which can be used to set the first variable to the value in the second.  I find myself using this all the time.  It just makes things a little easier because instead of writing an lda and sta line everytime I want to move data from one variable to another, I can just do the following:
+```
+set var1, var2
+```
+This would set the value of var1 to var2.  I know this only saves one line of code, but I do it enough that I feel like it's worth writing the macro.  
+
+Now a macro is actually expanded at compile time, so if you set through your code with a debugger you'll never see the "set" command.  It will be replaced with an lda and an sta on two lines.  Because of this, I have personally found that having large macros can make things very difficult to debug.  
+
+Procedures are like macros except you can't pass in any values.  Also every time you call a procedure it wastes 12 cycles pushing the program counter register onto the stack and pulling it back off again, not to mention executing the command that lets you jump into the procedure.  Because of this, you probably don't want to have a ton of calls to procedures because in some ways you are just throwing away cycles.  However, I have found that procedures both help orgainize your code and make things a lot easier to debug.  I used them heavily when I wrote [Nesteroids](https://www.embed.com/nes/nesteroids.html) with the intention of replacing the calls with faster macros when I needed to optimize.  Fortunately it was fast enough without that optimization step so all the procedure calls were left in.  
+[Link to Nesteroids Github Code](https://github.com/battlelinegames/nesteroids)
+
 
 ## Author: Rick Battagline of BattleLine Games LLC.
 Significant portions were lifted from            
