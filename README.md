@@ -75,6 +75,22 @@ Now a macro is actually expanded at compile time, so if you set through your cod
 Procedures are like macros except you can't pass in any values.  Also every time you call a procedure it wastes 12 cycles pushing the program counter register onto the stack and pulling it back off again, not to mention executing the command that lets you jump into the procedure.  Because of this, you probably don't want to have a ton of calls to procedures because in some ways you are just throwing away cycles.  However, I have found that procedures both help orgainize your code and make things a lot easier to debug.  I used them heavily when I wrote [Nesteroids](https://www.embed.com/nes/nesteroids.html) with the intention of replacing the calls with faster macros when I needed to optimize.  Fortunately it was fast enough without that optimization step so all the procedure calls were left in.  
 [Link to Nesteroids Github Code](https://github.com/battlelinegames/nesteroids)
 
+### 6502 Vectors
+The NES has no operating system.  Because of this, you have to somehow tell the system where to start out, and what to run when the reset button is pressed.  You also have to tell the system what to execute on an NMI (Non-maskable interrupt) and on an IRQ (Interrupt Request).  The way the 6502 was designed, a pointer to the 16 bit address locations of the code you want to run has to be placed in very specific memory locations in the last 6 bytes of memory.  To handle this, I placed a few lines of code at the end of the **header.asm** file.
+```
+.segment "VECTORS" ; THIS IS THE LAST 6 BYTES OF THE FILE, USED AS ADDRESSES FOR INTERRUPTS
+.word nmi
+.word reset
+.word irq
+```
+
+The segment *VECTORS* is defined in the .cfg file as the last 6 bytes of memory.  the labels nmi, reset, and irq are labels defined in the *nmi.asm*, *reset.asm*, and *irq.asm* inside of the *vectors* directory.  This means that when the system powers on, or when the reset button is pressed the game begins execution at the *reset:* label inside of the *reset.asm* file.  Whenever an Non-Maskable Interrupt occurs, code starting at the *nmi:* label inside of the *nmi.asm* file will begin to execute.  In this code the *irq* will simply call an *rti* (return from interrupt) when it is called.
+
+## What is an NMI?
+NMI stands for Non-Maskable Interrupt.  The PPU begins drawing pixels at the top of the screen and sweeps from left to right and top to bottom drawing pixels as it goes.  While the PPU is drawing to the screen, we can't send commands to it without messing it up, so this is a good time to do things in your gameloop like collision detection, or calculating where game objects will be located on the next draw.  When the PPU finishes drawing to the screen, on old televisions the beam that was doing the drawing would take little time to move back to the top left position.  This is called a V-Blank.  During this time period, the PPU isn't busy, so this is when you can start sending commands to the PPU.  The NMI occurs on this V-Blank, and the CPU will actually stop executing whatever it is doing at the time to jump into the NMI code.  When you're in the NMI, you have about 2200ish cycles to tell the PPU all that you would like it to do before it starts drawing to the screen again.  If you take too much time, you'll start to see garbage getting rendered out to the screen as the PPU is trying to draw while you're harassing it.
+
+## What is a gameloop
+Modern games don't really need to worry about when the screen refresh happens.  Most games today have plenty of memory which allows them to "double buffer" or draw everything that will appear on the screen to an offscreen buffer, then just swap the buffers out as you take another trip through your gameloop.  On an NES the game loop has to coordinatte with the NMI so that all the necessary PPU instructions are issued during the NMI and not when the PPU is busy.  You will have about 10x as many cycles in your gameloop as in your NMI, so try to do as much as you can in the gameloop leaving only interactions with the PPU for the NMI.
 
 ## Author: Rick Battagline of BattleLine Games LLC.
 Significant portions were lifted from            
