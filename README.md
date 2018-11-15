@@ -146,9 +146,144 @@ The next few lines are actually done while the game is executing during the NMI.
 .endmacro
 ```
 
-## Author: Rick Battagline of BattleLine Games LLC.
-Significant portions were lifted from            
-Brad Smith's (rainwarrior) ca65 example code     
+## Understanding Palettes
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/PPU-palettes.png?raw=true "NES PPU Palettes")
+The NES has a pretty limited color table for you to chose from.  Your game can have 4 palettes to use for background tiles and 4 palettes to use for sprites. Inside the *palette.asm* file I've defined all of the color values to make it easier to read.
+```
+DARK_GRAY = $00
+MEDIUM_GRAY = $10
+LIGHT_GRAY = $20
+LIGHTEST_GRAY = $30
+
+DARK_BLUE = $01
+MEDIUM_BLUE = $11
+LIGHT_BLUE = $21
+LIGHTEST_BLUE = $31
+
+DARK_INDIGO = $02
+MEDIUM_INDIGO = $12
+LIGHT_INDIGO = $22
+LIGHTEST_INDIGO = $32
+
+DARK_VIOLET = $03
+MEDIUM_VIOLET = $13
+LIGHT_VIOLET = $23
+LIGHTEST_VIOLET = $33
+
+DARK_PURPLE = $04
+MEDIUM_PURPLE = $14
+LIGHT_PURPLE = $24
+LIGHTEST_PURPLE = $34
+
+DARK_REDVIOLET = $05
+MEDIUM_REDVIOLET = $15
+LIGHT_REDVIOLET = $25
+LIGHTEST_REDVIOLET = $35
+
+DARK_RED = $06
+MEDIUM_RED = $16
+LIGHT_RED = $26
+LIGHTEST_RED = $36
+
+DARK_ORANGE = $07
+MEDIUM_ORANGE = $17
+LIGHT_ORANGE = $27
+LIGHTEST_ORANGE = $37
+
+DARK_YELLOW = $08
+MEDIUM_YELLOW = $18
+LIGHT_YELLOW = $28
+LIGHTEST_YELLOW = $38
+
+DARK_CHARTREUSE = $09
+MEDIUM_CHARTREUSE = $19
+LIGHT_CHARTREUSE = $29
+LIGHTEST_CHARTREUSE = $39
+
+DARK_GREEN = $0a
+MEDIUM_GREEN = $1a
+LIGHT_GREEN = $2a
+LIGHTEST_GREEN = $3a
+
+DARK_CYAN = $0b
+MEDIUM_CYAN = $1b
+LIGHT_CYAN = $2b
+LIGHTEST_CYAN = $3b
+
+DARK_TURQUOISE = $0c
+MEDIUM_TURQUOISE = $1c
+LIGHT_TURQUOISE = $2c
+LIGHTEST_TURQUOISE = $3c
+
+BLACK = $0f
+DARKEST_GRAY = $2d
+MEDIUM_GRAY2 = $3d
+```
+
+I have some labels inside the PRG ROM to use as the palettes in the game. 
+
+```
+.segment "ROMDATA"
+palette_background:
+.byte BLACK, LIGHTEST_YELLOW, MEDIUM_ORANGE,     DARK_ORANGE
+.byte BLACK, DARK_CHARTREUSE, MEDIUM_CHARTREUSE, LIGHT_CHARTREUSE
+.byte BLACK, DARK_BLUE,       MEDIUM_BLUE,       LIGHT_BLUE
+.byte BLACK, DARK_GRAY,       MEDIUM_GRAY,       LIGHTEST_GRAY
+
+palette_sprites:
+.byte BLACK, LIGHTEST_YELLOW, LIGHT_ORANGE, MEDIUM_ORANGE
+.byte BLACK, MEDIUM_PURPLE,   LIGHT_PURPLE, LIGHTEST_PURPLE
+.byte BLACK, MEDIUM_CYAN,     LIGHT_CYAN,   LIGHTEST_CYAN
+.byte BLACK, MEDIUM_INDIGO,   LIGHT_INDIGO, LIGHTEST_INDIGO
+```
+
+Inside the ppu.asm I've created a procedure called *load_palettes* which loads all the palette data into memory location $3F00 in PPU memory.  
+```
+.proc load_palettes
+
+    lda PPU_STATUS             ; read PPU status to reset the high/low latch
+
+    ; PPUADDR	$2006	aaaa aaaa	PPU read/write address (two writes: MSB, LSB)
+    ;----------￾-------￾----------￾---------------------------------------------'
+    ;| $2006   |  W2   | aaaaaaaa | PPU Memory Address                [PPUADDR] |
+    ;|         |       |          |                                             |
+    ;|         |       |          |  Specifies the address in VRAM in which     |
+    ;|         |       |          |  data should be read from or written to.    |
+    ;|         |       |          |  This is a double-write register. The high- |
+    ;|         |       |          |  byte of the 16-bit address is written      |
+    ;|         |       |          |  first, then the low-byte.                  |
+    ;----------￾-------￾----------￾---------------------------------------------'
+    lda #$3F
+    sta PPU_ADDR             ; write the high byte of $3F00 address
+
+    lda #$00
+    sta PPU_ADDR             ; write the low byte of $3F00 address
+
+    ldx #$00              ; start out at 0
+    LoadPalettesLoop:
+    lda palette_background, x        ; load data from address (palette + the value in x)
+                            ; 1st time through loop it will load palette+0
+                            ; 2nd time through loop it will load palette+1
+                            ; 3rd time through loop it will load palette+2
+                            ; etc
+
+    ; PPUDATA	$2007	dddd dddd	PPU data read/write
+    ;----------￾-------￾----------￾---------------------------------------------'
+    ;| $2007   | RW    | dddddddd | PPU I/O Register                    [PPUIO] |
+    ;|         |       |          |                                             |
+    ;|         |       |          |  Used to read/write to the address spec-    |
+    ;|         |       |          |  ified via $2006 in VRAM.                   |
+    ;----------￾-------￾----------￾---------------------------------------------'
+    sta PPU_DATA             ; write to PPU
+    ;    WRITE_PPU_DATA
+
+    inx                   ; X = X + 1
+    cpx #$20              ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
+    bne LoadPalettesLoop  ; Branch to LoadPalettesLoop if compare was Not Equal to zero
+                        ; if compare was equal to 32, keep going down
+    rts
+.endproc
+```
 
 ## File: compile.bat                                
 This code was taken from rainwarrior's example    
@@ -374,6 +509,9 @@ clear all data when you start up.
 
 This is the primary game file.  It must include all other files you want to use.  This file also includes the game loop.                 
 
+## Author: Rick Battagline of BattleLine Games LLC.
+Significant portions were lifted from            
+Brad Smith's (rainwarrior) ca65 example code     
 
 # SHAMELESS PLUG from Rick Battagline            
 
