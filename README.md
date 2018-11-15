@@ -95,6 +95,7 @@ Modern games don't really need to worry about when the screen refresh happens.  
 # Understanding the NES PPU
 The PPU (Picture Processing Unit) was a kind of early GPU (Graphics Processing Unit) that the NES used to render images to the screen.  
 If we go back to that architecture drawing I made earlier, you'll notice that the PPU has access to the CHR ROM which it maps as the first 8K of memory.
+
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
 The CHR ROM is an 8K ROM chip that in early NES games held all of the sprite and background image data for the game.  The CHR format used 2 bits per pixel, so each sprite and background image pixel only had 3 possible colors and a transparent color.  Each one of these 3 potential colors were mapped to a Palette which referenced one of the 64 colors the NES was capable of drawing *(In reality it was more like 54 colors becasue for some reason black was in there 10 times and white twice)*.
 
@@ -102,6 +103,7 @@ The CHR ROM is an 8K ROM chip that in early NES games held all of the sprite and
 Each sprite and background tile is an 8x8 square of pixels.  The CHR ROM has 4K dedicated to sprite image data and 4K dedicated to background image data.  
 
 This is a png version of the image data I used for [Nesteroids](https://www.embed.com/nes/nesteroids.html):
+
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/AsteroidSheetMonochrome.png?raw=true "Nesteroids Image Data")
 The top half of the file is used for sprites and moving objects such as the space ship, the ufo, asteroids and bullets.  The bottom half is used for background information that scrolls into view such as the **Nesteroids** logo.  Now this is a .png file and not a .chr file which is required by the CA65 Assembler.  To convert it to the chr file you will need to use a program like [YY-CHR](http://wiki.nesdev.com/w/index.php/YY-CHR) which I have included in the *tools* directory in this project.  You can modify the images directly in YY-CHR, which I find difficult.  My process involves creating and animating the sprites using [Aseprite](https://www.aseprite.org/), then putting it together into a 128x256 pixel file in Photoshop, then copy and pasting it into YY-CHR.  That sounds like a pain... and it is, but I still found it easier than doing my art directly in YY-CHR.
 
