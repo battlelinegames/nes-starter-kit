@@ -246,7 +246,7 @@ Inside the ppu.asm I've created a procedure called *load_palettes* which loads a
     lda PPU_STATUS             ; read PPU status to reset the high/low latch
 
     ; PPUADDR	$2006	aaaa aaaa	PPU read/write address (two writes: MSB, LSB)
-    ;----------￾-------￾----------￾---------------------------------------------'
+    ;----------+-------+----------+---------------------------------------------'
     ;| $2006   |  W2   | aaaaaaaa | PPU Memory Address                [PPUADDR] |
     ;|         |       |          |                                             |
     ;|         |       |          |  Specifies the address in VRAM in which     |
@@ -254,7 +254,7 @@ Inside the ppu.asm I've created a procedure called *load_palettes* which loads a
     ;|         |       |          |  This is a double-write register. The high- |
     ;|         |       |          |  byte of the 16-bit address is written      |
     ;|         |       |          |  first, then the low-byte.                  |
-    ;----------￾-------￾----------￾---------------------------------------------'
+    ;----------+-------+----------+---------------------------------------------'
     lda #$3F
     sta PPU_ADDR             ; write the high byte of $3F00 address
 
@@ -270,12 +270,12 @@ Inside the ppu.asm I've created a procedure called *load_palettes* which loads a
                             ; etc
 
     ; PPUDATA	$2007	dddd dddd	PPU data read/write
-    ;----------￾-------￾----------￾---------------------------------------------'
+    ;----------+-------+----------+---------------------------------------------'
     ;| $2007   | RW    | dddddddd | PPU I/O Register                    [PPUIO] |
     ;|         |       |          |                                             |
     ;|         |       |          |  Used to read/write to the address spec-    |
     ;|         |       |          |  ified via $2006 in VRAM.                   |
-    ;----------￾-------￾----------￾---------------------------------------------'
+    ;----------+-------+----------+---------------------------------------------'
     sta PPU_DATA             ; write to PPU
     ;    WRITE_PPU_DATA
 
