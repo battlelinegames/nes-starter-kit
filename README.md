@@ -1,5 +1,30 @@
 # NES Starter Kit
-This is a starter kit for developing Nintendo Entertainment System games using 6502 Assembly language.  I've included both code and tools for getting started in your adventure creating NES games for emulators or even cartridges.  I will be stepping through this code in tutorials on youtube as well as in this readme.
+This is a starter kit for developing Nintendo Entertainment System games using 6502 Assembly language.  I've included both code and tools for getting started in your adventure creating NES games for emulators or even cartridges.  I will be stepping through this code in tutorials on youtube as well as in this readme.  We will be using the [CA65 Assembler](https://www.cc65.org/index.php#Download) to assemble our program into the iNES Rom format.
+
+[More NES Tutorials](https://www.embed.com/nes)
+
+## NES Architecture
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
+The NES uses a variant of the 6502 processor as it's CPU.  If you'd like to write code for the NES I'd highly recommend learning 6502 assembly language.  The NES also has a PPU (Picture Processing Unit).  The PPU was a kind of early stage GPU (graphics processing unit) which was capable of drawing images to the screen based on what was in the PPU's memory.  The NES had no operating system, so early NES cartridges had 2 ROM chips in them.  An 8K CHR ROM which contained all of the sprite and background image data using 2 bits per pixel.  There was also a 32K PRG ROM wich contained all of the program data your game would run.  Those ROM Chips were wired directly into the system's memory space.  When we write a game using an emulator, we mimic this memory arrangement.  
+
+## 6502 CPU
+### Actually a 2A03 CPU variant of the 6502 processor
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/6502.png?raw=true)
+The 6502 was a popular CPU in the late 1970s and early 1980s for home systems and video games because it was cheap.  It was used for several Atari systems including the 2600, by Commodore for the C64, and Apple for the Apple II.  
+
+### The 6502 is slow
+Programming with assembly languge can be quite time intensive.  It takes many lines of code to do things that could be accomplished in a few lines of javascript.  But by today's standards a 6502 is shockingly slow.  It ran at 1.7Mhz (Million Cycles / Second).  That may sound like a lot, but if you are trying to draw 60 frames per second, you have to divide 1700000 / 60 giving you about 28,000 or so cycles to draw a frame.  On top of that there are no instructions that take less than 2 cycles, and most take many more.  What it boils down to is you have a few thousand lines of assembly code to do everything.  On top of that you only have 32,000 bytes to write your code.  (later in the NES lifecycle chips were added into the carts to get around some of these limitations, but I won't be going into mappers here).
+
+### 6502 Assembly has 56 documented commands
+Having to learn the 56 Assembly language commands isn't too bad.  
+[Here's a link to my favorite 6502 reference](http://www.obelisk.me.uk/6502/reference.html)
+From what I can tell, there are 4 categories of commands
+* Move data commands (LDA, STA, LDX, TAX)
+* Status flag setting commands (CPA, BIT, SEC)
+* Math and Logic commands (ADC, SBC, AND)
+* Branching Commands (BEQ, JMP, BPL)
+
+6502 Assembly doesn't really have variables.  It just has places in RAM where you can put stuff.  You can assign labels to these memory locations and they kind of act like variables, but these labels are effectively global in scope.  
 
 ## Author: Rick Battagline of BattleLine Games LLC.
 Significant portions were lifted from            
