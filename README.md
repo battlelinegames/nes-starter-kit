@@ -89,8 +89,62 @@ The segment *VECTORS* is defined in the .cfg file as the last 6 bytes of memory.
 ## What is an NMI?
 NMI stands for Non-Maskable Interrupt.  The PPU begins drawing pixels at the top of the screen and sweeps from left to right and top to bottom drawing pixels as it goes.  While the PPU is drawing to the screen, we can't send commands to it without messing it up, so this is a good time to do things in your gameloop like collision detection, or calculating where game objects will be located on the next draw.  When the PPU finishes drawing to the screen, on old televisions the beam that was doing the drawing would take little time to move back to the top left position.  This is called a V-Blank.  During this time period, the PPU isn't busy, so this is when you can start sending commands to the PPU.  The NMI occurs on this V-Blank, and the CPU will actually stop executing whatever it is doing at the time to jump into the NMI code.  When you're in the NMI, you have about 2200ish cycles to tell the PPU all that you would like it to do before it starts drawing to the screen again.  If you take too much time, you'll start to see garbage getting rendered out to the screen as the PPU is trying to draw while you're harassing it.
 
-## What is a gameloop
+## What is a gameloop?
 Modern games don't really need to worry about when the screen refresh happens.  Most games today have plenty of memory which allows them to "double buffer" or draw everything that will appear on the screen to an offscreen buffer, then just swap the buffers out as you take another trip through your gameloop.  On an NES the game loop has to coordinatte with the NMI so that all the necessary PPU instructions are issued during the NMI and not when the PPU is busy.  You will have about 10x as many cycles in your gameloop as in your NMI, so try to do as much as you can in the gameloop leaving only interactions with the PPU for the NMI.
+
+# Understanding the NES PPU
+The PPU (Picture Processing Unit) was a kind of early GPU (Graphics Processing Unit) that the NES used to render images to the screen.  
+If we go back to that architecture drawing I made earlier, you'll notice that the PPU has access to the CHR ROM which it maps as the first 8K of memory.
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
+The CHR ROM is an 8K ROM chip that in early NES games held all of the sprite and background image data for the game.  The CHR format used 2 bits per pixel, so each sprite and background image pixel only had 3 possible colors and a transparent color.  Each one of these 3 potential colors were mapped to a Palette which referenced one of the 64 colors the NES was capable of drawing *(In reality it was more like 54 colors becasue for some reason black was in there 10 times and white twice)*.
+
+### Sprites and Background Tiles
+Each sprite and background tile is an 8x8 square of pixels.  The CHR ROM has 4K dedicated to sprite image data and 4K dedicated to background image data.  
+
+This is a png version of the image data I used for [Nesteroids](https://www.embed.com/nes/nesteroids.html):
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/AsteroidSheetMonochrome.png?raw=true "Nesteroids Image Data")
+The top half of the file is used for sprites and moving objects such as the space ship, the ufo, asteroids and bullets.  The bottom half is used for background information that scrolls into view such as the **Nesteroids** logo.  Now this is a .png file and not a .chr file which is required by the CA65 Assembler.  To convert it to the chr file you will need to use a program like [YY-CHR](http://wiki.nesdev.com/w/index.php/YY-CHR) which I have included in the *tools* directory in this project.  You can modify the images directly in YY-CHR, which I find difficult.  My process involves creating and animating the sprites using [Aseprite](https://www.aseprite.org/), then putting it together into a 128x256 pixel file in Photoshop, then copy and pasting it into YY-CHR.  That sounds like a pain... and it is, but I still found it easier than doing my art directly in YY-CHR.
+
+### Telling the PPU what to do
+You can't directly execute code on the PPU. The 6502 interfaces with other devices by setting aside memory locations that aren't really memory locations but interfaces into those other devices.  Those devices are responsible for watching the bus to see if the CPU is trying to talk to it. For instance, in this project we want to srite data to the nametable at a specific location to display the text in the macro *printf_nmi*.  The first thing I do is read from PPU_STATUS ($2002) with an LDA.  This isn't really to read that data.  It's really to tell the PPU to get ready for me to send it a command.  I want to write some bytes into the nametable to tell the PPU to swap out existing background tiles with new ones that I give it.  To tell it where those tiles will be located in the backgound, I need to figure out where in memory those positions are located.  The first thing I do in the macro is get the **ROW** and **COL** from the **XPOS** and **YPOS** that I passed in to the macro by dividing by 8.
+
+```
+.macro printf_nmi STRING, XPOS, YPOS 
+    .local ROW
+    .local COL
+    .local BYTE_OFFSET_HI
+    .local BYTE_OFFSET_LO
+    
+    ROW = YPOS / 8 
+    COL = XPOS / 8 
+```
+
+Right now you're probably saying: "Hey, that doesn't look like assembly"
+And you would be right.  The magic of macros and CA65 is that those values get set when the program is assembled an not when it's running on the NES.  ROW and COL are basically constants that get set every time we call printf_nmi.  XPOS and YPOS have to be passed in as constants as well or this won't work.  If you attempted to pass in a variable to printf_nmi it would blow up because it wouldn't be able to resolve ROW and COL when this is assembled.
+
+The next couple of lines are still done during assembly:
+```
+    BYTE_OFFSET_HI = (ROW * 32 + COL) / 256 + 32 
+    BYTE_OFFSET_LO = (ROW * 32 + COL) .mod 256
+```
+When we come out of this after assembly we have constant values we've calculated for BYTE_OFFSET_HI AND BYTE_OFFSET_LO.
+
+The next few lines are actually done while the game is executing during the NMI.  We read from $2002 (PPU_STATUS) to tell the PPU we are about to do something.  Then we write to $2006 twice to send a 16 bit address one byte at a time.  After that we write to $2007 (PPU_DATA) with the data we want to write to the address specified in the nametable.
+
+```
+    lda PPU_STATUS        ; PPU_STATUS = $2002
+
+    lda #BYTE_OFFSET_HI
+    sta PPU_ADDR          ; PPU_ADDR = $2006
+    lda #BYTE_OFFSET_LO
+    sta PPU_ADDR          ; PPU_ADDR = $2006
+
+    .repeat .strlen(STRING), I
+        lda #.strat(STRING, I)
+        sta PPU_DATA      ; PPU_DATA = $2007
+    .endrep
+.endmacro
+```
 
 ## Author: Rick Battagline of BattleLine Games LLC.
 Significant portions were lifted from            
