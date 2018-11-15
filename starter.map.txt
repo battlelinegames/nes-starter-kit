@@ -1,0 +1,38 @@
+Modules list:
+-------------
+starter.o:
+    CODE              Offs=000000  Size=00020E  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=000007  Align=00001  Fill=0000
+    IMG               Offs=000000  Size=002000  Align=00001  Fill=0000
+    HEADER            Offs=000000  Size=00000D  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+    OAM               Offs=000000  Size=000100  Align=00001  Fill=0000
+    ROMDATA           Offs=000000  Size=000020  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+HEADER                000000  00000C  00000D  00001
+IMG                   000000  001FFF  002000  00001
+ZEROPAGE              000000  000006  000007  00001
+OAM                   000200  0002FF  000100  00001
+CODE                  008000  00820D  00020E  00001
+ROMDATA               00E000  00E01F  000020  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

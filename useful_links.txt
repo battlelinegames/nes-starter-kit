@@ -1,0 +1,85 @@
+#############################################################
+#                                                           #
+#                   SITES FOR LEARNING                      #
+#                                                           #
+#############################################################
+
+# I'm going to be putting this and other tutorials at embed.com/nes
+https://www.embed.com/nes
+
+# NES DEV has some great forums with a very helpful community, and a great forum for Newbies
+http://forums.nesdev.com/viewforum.php?f=10
+
+# NES DEV also has a wiki that is a great reference
+https://wiki.nesdev.com/w/index.php/Nesdev_Wiki
+
+# NERDY NIGHTS is the best known NES game dev tutorial on the web
+http://nintendoage.com/forum/messageview.cfm?catid=22&threadid=7155
+
+# NINTENDO AGE has a forum called "The Brewery" for NES Homebrew games
+http://nintendoage.com/forum/categories.cfm?catid=22
+
+# My personal favorite 6502 assembly reference.  There are many others
+http://www.obelisk.me.uk/6502/reference.html
+
+# CA65 Control Commands reference
+https://www.cc65.org/doc/ca65.html#toc11
+
+
+
+#############################################################
+#                                                           #
+#                    DEVELOPER TOOLS                        #
+#                                                           #
+#############################################################
+
+# The CA65 assembler is one of the tools you get with CC65.  Available at this link
+https://www.cc65.org/
+
+# MESEN is my favorite NES emulator.  It has some great debugging tools.  
+# I've included a copy in the tools folder
+https://www.mesen.ca/#Downloads
+
+# Visual Studio Code is the editor I use
+https://code.visualstudio.com/
+
+# I've used Notepad++ in the past, but I've switched to VS Code.  Notepad++ is a simpler editor
+https://notepad-plus-plus.org/download/v7.6.html
+
+# YY-CHR is a CHR ROM editor
+# I've included a copy in the tools folder
+https://wiki.nesdev.com/w/index.php/YY-CHR
+
+# Shiru's website has some great tools
+http://shiru.untergrund.net/software.shtml
+
+# Gimp is an open source & free image editor.  I typically aseprite and photoshop with yy-chr,
+# but Gimp has many fans... and it's free
+https://www.gimp.org/downloads/
+
+# Aseprite is my favorite pixel art tool.  It's not free, but it's reasonably priced.
+https://www.aseprite.org/
+
+
+
+
++---------------------------------------------------+
+| SHAMELESS PLUG from Rick Battagline               |
+|                                                   |
+| I make web games for a living, and if you want to |
+| help me out please play them when you're bored at |
+| work. (win, win)                                  |
+|                                                   |
+| classicsolitaire.com                              |
+|                                                   |
+| icardgames.com                                    |
+|                                                   |
+| candymahjong.com                                  |
+|                                                   |
+| embed.com                                         |
+|                                                   |
+| I plan on making this and other tutorials and     |
+| NES Game ROMS available in the near future at     |
+| https://www.embed.com/nes                         |
+|                                                   |
++---------------------------------------------------+
