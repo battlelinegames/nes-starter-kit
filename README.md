@@ -1,8 +1,6 @@
 # NES Starter Kit
 This is a starter kit for developing Nintendo Entertainment System games using 6502 Assembly language.  I've included both code and tools for getting started in your adventure creating NES games for emulators or even cartridges.  I will be stepping through this code in tutorials on youtube as well as in this readme.  We will be using the [CA65 Assembler](https://www.cc65.org/index.php#Download) to assemble our program into the iNES Rom format.
 
-![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/EmbedLogo.png?raw=true "NES Game Dev")
-
 ## NES Architecture
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
 The NES uses a variant of the 6502 processor as it's CPU.  If you'd like to write code for the NES I'd highly recommend learning 6502 assembly language.  The NES also has a PPU (Picture Processing Unit).  The PPU was a kind of early stage GPU (graphics processing unit) which was capable of drawing images to the screen based on what was in the PPU's memory.  The NES had no operating system, so early NES cartridges had 2 ROM chips in them.  An 8K CHR ROM which contained all of the sprite and background image data using 2 bits per pixel.  There was also a 32K PRG ROM wich contained all of the program data your game would run.  Those ROM Chips were wired directly into the system's memory space.  When we write a game using an emulator, we mimic this memory arrangement.  
