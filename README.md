@@ -1,9 +1,7 @@
 # NES Starter Kit
 This is a starter kit for developing Nintendo Entertainment System games using 6502 Assembly language.  I've included both code and tools for getting started in your adventure creating NES games for emulators or even cartridges.  I will be stepping through this code in tutorials on youtube as well as in this readme.  We will be using the [CA65 Assembler](https://www.cc65.org/index.php#Download) to assemble our program into the iNES Rom format.
 
-[More NES Tutorials](https://www.embed.com/nes)
-
-![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/EmbedLogo.png?raw=true "Embed.com NES Game Dev")
+![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/EmbedLogo.png?raw=true "NES Game Dev")
 
 ## NES Architecture
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/NES-Architecture.png?raw=true "NES Architecture")
@@ -72,7 +70,7 @@ This would set the value of var1 to var2.  I know this only saves one line of co
 
 Now a macro is actually expanded at compile time, so if you set through your code with a debugger you'll never see the "set" command.  It will be replaced with an lda and an sta on two lines.  Because of this, I have personally found that having large macros can make things very difficult to debug.  
 
-Procedures are like macros except you can't pass in any values.  Also every time you call a procedure it wastes 12 cycles pushing the program counter register onto the stack and pulling it back off again, not to mention executing the command that lets you jump into the procedure.  Because of this, you probably don't want to have a ton of calls to procedures because in some ways you are just throwing away cycles.  However, I have found that procedures both help orgainize your code and make things a lot easier to debug.  I used them heavily when I wrote [Nesteroids](https://www.embed.com/nes/nesteroids.html) with the intention of replacing the calls with faster macros when I needed to optimize.  Fortunately it was fast enough without that optimization step so all the procedure calls were left in.  
+Procedures are like macros except you can't pass in any values.  Also every time you call a procedure it wastes 12 cycles pushing the program counter register onto the stack and pulling it back off again, not to mention executing the command that lets you jump into the procedure.  Because of this, you probably don't want to have a ton of calls to procedures because in some ways you are just throwing away cycles.  However, I have found that procedures both help orgainize your code and make things a lot easier to debug.  I used them heavily when I wrote [Nesteroids](https://github.com/battlelinegames/nesteroids) with the intention of replacing the calls with faster macros when I needed to optimize.  Fortunately it was fast enough without that optimization step so all the procedure calls were left in.  
 [Link to Nesteroids Github Code](https://github.com/battlelinegames/nesteroids)
 
 ### 6502 Vectors
@@ -102,7 +100,7 @@ The CHR ROM is an 8K ROM chip that in early NES games held all of the sprite and
 ### Sprites and Background Tiles
 Each sprite and background tile is an 8x8 square of pixels.  The CHR ROM has 4K dedicated to sprite image data and 4K dedicated to background image data.  
 
-This is a png version of the image data I used for [Nesteroids](https://www.embed.com/nes/nesteroids.html):
+This is a png version of the image data I used for [Nesteroids](https://github.com/battlelinegames/nesteroids):
 
 ![alt text](https://github.com/battlelinegames/nes-starter-kit/blob/master/img/AsteroidSheetMonochrome.png?raw=true "Nesteroids Image Data")
 The top half of the file is used for sprites and moving objects such as the space ship, the ufo, asteroids and bullets.  The bottom half is used for background information that scrolls into view such as the **Nesteroids** logo.  Now this is a .png file and not a .chr file which is required by the CA65 Assembler.  To convert it to the chr file you will need to use a program like [YY-CHR](http://wiki.nesdev.com/w/index.php/YY-CHR) which I have included in the *tools* directory in this project.  You can modify the images directly in YY-CHR, which I find difficult.  My process involves creating and animating the sprites using [Aseprite](https://www.aseprite.org/), then putting it together into a 128x256 pixel file in Photoshop, then copy and pasting it into YY-CHR.  That sounds like a pain... and it is, but I still found it easier than doing my art directly in YY-CHR.
@@ -524,8 +522,4 @@ https://www.classicsolitaire.com
 https://www.icardgames.com                                    
 
 https://www.candymahjong.com                                  
-
-https://www.embed.com                                         
-
-I plan on making this and other tutorials and NES Game ROMS available in the near future at https://www.embed.com/nes                         
                                                   
