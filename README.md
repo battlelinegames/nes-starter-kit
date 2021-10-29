@@ -50,7 +50,7 @@ The most popular NES tutorial is probably the [Nerdy Nights tutorial](http://nin
 I go into the config file quite a bit more below in the **File: starter.cfg** section.  The config file is used to set up what the memory in both your iNes file and your runtime environment looks like.  You also define segments that can be used to specify where your code or variable definitions are going in memory.
 
 #### Macros and Procedures (Subroutines)
-I personally find Macros and procedures to be quite helpful.  Macros are a way to combine several lines of code into a sinle line to use later.
+I personally find Macros and procedures to be quite helpful.  Macros are a way to combine several lines of code into a single line to use later.
 
 For example
 ```
